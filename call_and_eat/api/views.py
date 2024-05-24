@@ -3,8 +3,27 @@ from django.views import View
 from django.shortcuts import render  
 from django.views.generic import TemplateView
 from .models import PagoFinal,Cesta,Categorias, Plato, MenuSemanal, ImagenesPlatos, InfUbicacion 
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
 
 import json
+from .models import ImagenCarrusel
+
+import os
+
+def carrusel_imagenes(request):
+    # Ruta a la carpeta donde están almacenadas las imágenes del carrusel
+    ruta_carpeta_imagenes = 'D:/2ªDAWRECU/django_mysql_api/img'
+
+    # Obtener la lista de nombres de archivo de todas las imágenes en la carpeta
+    nombres_archivos = os.listdir(ruta_carpeta_imagenes)
+
+    # Crear una lista de rutas de archivo completas para las imágenes del carrusel
+    rutas_imagenes = [os.path.join(ruta_carpeta_imagenes, nombre_archivo) for nombre_archivo in nombres_archivos]
+
+    # Devolver la lista de rutas de archivo como una respuesta JSON
+    return JsonResponse({'imagenes': rutas_imagenes})
+
 
 class PagPrincipalView(TemplateView):
    template_name = "pag_principal.html"
@@ -17,9 +36,18 @@ class CartaView(View):
 
 class MenuSemanalView(View):
     def get(self, request):
-        menu_semanal = list(MenuSemanal.objects.values())
-        data = {'message': "Éxito", 'menu_semanal': menu_semanal}
-        return JsonResponse(data)
+        # Verificar si el campo 'categoria' está presente en el modelo MenuSemanal
+        if hasattr(MenuSemanal, 'categoria'):
+            print("El campo 'categoria' está presente en el modelo MenuSemanal")
+            # Si el campo 'categoria' está presente, realizar la consulta
+            menu_semanal = list(MenuSemanal.objects.values())
+            data = {'message': "Éxito", 'menu_semanal': menu_semanal}
+            return JsonResponse(data)
+        else:
+            # Si el campo 'categoria' no está presente, devolver un mensaje de error
+            data = {'message': "Error: El campo 'categoria' no está presente en el modelo MenuSemanal"}
+            return JsonResponse(data, status=500)
+
 
 class PlatosCategoriaView(View):
     def get(self, request, categoria_id):
@@ -87,8 +115,7 @@ class PlatosView(View):
 class InfUbicacionView(View):
     def get(self, request):
         # Obtener los datos del modelo InfUbicacion
-        ubicacion = InfUbicacion.objects.all()  # O usa filter() si solo quieres ciertos objetos
-        context = {
-            'ubicacion': ubicacion
-        }
-        return render(request, 'ubicacion.html', context)  # Asegúrate de que el template se llame 'ubicacion.html'
+        ubicacion = InfUbicacion.objects.all().values()  # values() para obtener los datos como diccionarios
+        # Convertir QuerySet a lista
+        ubicacion_list = list(ubicacion)
+        return JsonResponse(ubicacion_list, safe=False)

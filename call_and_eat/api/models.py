@@ -15,20 +15,36 @@ class ImagenCarrusel(models.Model):
     def __str__(self):
         return self.titulo
 
+class Categorias(models.Model):
+    imagen = models.ImageField(upload_to='categorias/')
+    nombre = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.nombre
 
 class Plato(models.Model):
+    CATEGORIAS_CHOICES = [
+        ('Entrantes', 'Entrantes'),
+        ('Caldos y Potajes', 'Caldos y Potajes'),
+        ('Patatas y Arroces', 'Patatas y Arroces'),
+        ('Carnes', 'Carnes'),
+        ('Pastas', 'Pastas'),
+        ('Pescado', 'Pescado'),
+        ('Postres', 'Postres'),
+    ]
+
+    categoria = models.CharField(max_length=20, choices=CATEGORIAS_CHOICES)
     nombre = models.CharField(max_length=255)
     imagen = models.ImageField(upload_to='platos/', blank=True, null=True)
     alergenos = models.CharField(max_length=255, blank=True, null=True)
     descripcion = models.TextField(blank=True, null=True)
-    categoria = models.CharField(max_length=20)
     precio = models.IntegerField()
     en_menu_semanal = models.BooleanField(default=False)
     dia_semana = models.CharField(max_length=10, blank=True, null=True)
 
     def __str__(self):
         return self.nombre
-
+        
 class Cesta(models.Model):
     plato = models.ForeignKey(Plato, on_delete=models.CASCADE)
     cantidad = models.IntegerField()
@@ -50,11 +66,18 @@ class MenuSemanal(models.Model):
         (BEBIDA, 'Bebida'),
     ]
 
+    categoria = models.CharField(max_length=20, choices=CATEGORIAS_CHOICES)
+    nombre = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f"{self.get_categoria_display()}: {self.nombre}"
+
+class CategoriaPlato(models.Model):
     nombre = models.CharField(max_length=100)
 
     def __str__(self):
         return self.nombre
-
+    
 class OpcionPlato(models.Model):
     menu_semanal = models.ForeignKey(MenuSemanal, on_delete=models.CASCADE)
     categoria = models.CharField(max_length=20, choices=MenuSemanal.CATEGORIAS_CHOICES)
@@ -113,9 +136,4 @@ class Alergenos(models.Model):
     def __str__(self):
         return self.nombre
 
-class Categorias(models.Model):
-    imagen = models.ImageField(upload_to='categorias/')
-    nombre = models.CharField(max_length=100)
 
-    def __str__(self):
-        return self.nombre

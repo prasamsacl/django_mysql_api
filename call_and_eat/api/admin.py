@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Cesta,Categorias, Plato, MenuSemanal, ImagenesPlatos, ImagenCarrusel, InfUbicacion, PagoFinal, InfPlato, Alergenos
+from .models import CategoriaPlato,Cesta,Categorias, Plato, MenuSemanal, ImagenesPlatos, ImagenCarrusel, InfUbicacion, PagoFinal, InfPlato, Alergenos
 
 admin.site.register(ImagenCarrusel)
 admin.site.register(Plato)
@@ -11,3 +11,4 @@ admin.site.register(Alergenos)
 admin.site.register(Categorias)
 admin.site.register(MenuSemanal)  
 admin.site.register(Cesta)
+admin.site.register(CategoriaPlato)
