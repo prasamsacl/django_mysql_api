@@ -55,23 +55,20 @@ class PlatosCategoriaView(View):
         data = {'message': "Éxito", 'platos': platos}
         return JsonResponse(data)
 
-class InfPlatoView(View):
-    def get(self, request, id):
-        try:
-            plato = Plato.objects.get(id=id)
-            data = {
-                'message': "Éxito",
-                'plato': {
-                    'id': plato.id,
-                    'name': plato.nombre,
-                    'price': plato.precio,
-                    'alergenos': plato.alergenos,
-                    'description': plato.descripcion
-                }
-            }
-        except Plato.DoesNotExist:
-            data = {'message': "Plato no encontrado..."}
+def InfPlatoView(request, id):
+    try:
+        plato = Plato.objects.get(id=id)
+        data = {
+            "id": plato.id,
+            "nombre": plato.nombre,
+            "descripcion": plato.descripcion,
+            "precio": plato.precio,
+            "imagen": plato.imagen.url,
+            "allergenos": [allergeno.url for allergeno in plato.allergenos.all()],
+        }
         return JsonResponse(data)
+    except Plato.DoesNotExist:
+        return JsonResponse({'error': 'Plato no encontrado'}, status=404)
 
 class CestaView(View):
     def get(self, request):
@@ -99,6 +96,22 @@ class PagoFinalView(View):
         pagos = list(PagoFinal.objects.values('nombre', 'apellidos', 'tarjeta_credito', 'direccion', 'cvv', 'codigo_postal', 'fecha_caducidad_tarjeta'))
         data = {'message': "Éxito", 'pagos': pagos}
         return JsonResponse(data)
+
+    def post(self, request):
+        jd = json.loads(request.body)
+        nuevo_pago = PagoFinal(
+            nombre=jd['nombre'],
+            apellidos=jd['apellidos'],
+            telefono=jd['telefono'],
+            tarjeta_credito=jd['tarjeta'],
+            direccion=jd['direccion'],
+            cvv=jd['cv'],
+            codigo_postal=jd['cp'],
+            fecha_caducidad_tarjeta=jd['fecha']
+        )
+        nuevo_pago.save()
+        data = {'message': "Pago guardado con éxito"}
+        return JsonResponse(data, status=201)
     
 class GaleriaView(View):
     def get(self, request):

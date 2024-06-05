@@ -53,6 +53,8 @@ class Cesta(models.Model):
     def __str__(self):
         return f'{self.plato.nombre} x {self.cantidad}'
 
+from django.db import models
+
 class MenuSemanal(models.Model):
     PRIMER_PLATO = 'Primer plato'
     SEGUNDO_PLATO = 'Segundo plato'
@@ -71,6 +73,7 @@ class MenuSemanal(models.Model):
 
     def __str__(self):
         return f"{self.get_categoria_display()}: {self.nombre}"
+
 
 class CategoriaPlato(models.Model):
     nombre = models.CharField(max_length=100)
@@ -106,9 +109,12 @@ class PagoFinal(models.Model):
     cvv = models.CharField(max_length=4)
     codigo_postal = models.CharField(max_length=10)
     fecha_caducidad_tarjeta = models.DateField()
+    cantidad = models.DecimalField(max_digits=10, decimal_places=2)
+    fecha = models.DateField()
 
     def __str__(self):
-        return f"{self.nombre} {self.apellidos}"
+       return f"Pago: {self.cantidad} - Fecha: {self.fecha}"
+
 
 class InfPlato(models.Model):
     nombre = models.CharField(max_length=255)
