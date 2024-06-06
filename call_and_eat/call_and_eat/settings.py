@@ -26,10 +26,15 @@ SECRET_KEY = 'django-insecure-waq4*xypq#6_=&!*_yc6=e*_cnm9^4x*m_k%4!u6^$+aqz2g0$
 DEBUG = True
 
 ALLOWED_HOSTS = []
+CSRF_COOKIE_DOMAIN = None  # O el dominio correspondiente
 
 #NUEVA INCORPORACION
 CORS_ORIGIN_ALLOW_ALL = True
 # Application definition
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',
+    # Otros orígenes permitidos
+]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -37,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+
     'django.contrib.staticfiles',
     'api',
     #IMPLEMENTACION DE CORS
@@ -46,6 +52,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     #IMPLEMENTACION DE CORS
     'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

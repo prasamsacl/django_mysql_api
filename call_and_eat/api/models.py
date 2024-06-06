@@ -15,6 +15,7 @@ class ImagenCarrusel(models.Model):
     def __str__(self):
         return self.titulo
 
+
 class Categorias(models.Model):
     imagen = models.ImageField(upload_to='categorias/')
     nombre = models.CharField(max_length=100)
@@ -44,7 +45,7 @@ class Plato(models.Model):
 
     def __str__(self):
         return self.nombre
-        
+
 class Cesta(models.Model):
     plato = models.ForeignKey(Plato, on_delete=models.CASCADE)
     cantidad = models.IntegerField()
@@ -110,12 +111,26 @@ class PagoFinal(models.Model):
     codigo_postal = models.CharField(max_length=10)
     fecha_caducidad_tarjeta = models.DateField()
     cantidad = models.DecimalField(max_digits=10, decimal_places=2)
-    fecha = models.DateField()
 
     def __str__(self):
-       return f"Pago: {self.cantidad} - Fecha: {self.fecha}"
+        return f"Pago: {self.cantidad} - Fecha: {self.fecha}"
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        # Almacenar los elementos de la cesta asociados a este pago
+        for cesta in self.cesta_set.all():
+            cesta.pago_final = self
+            cesta.save()
 
+class Cesta(models.Model):
+    # Definir los campos del modelo Cesta
+    nombre = models.CharField(max_length=100)
+    precio = models.DecimalField(max_digits=10, decimal_places=2)
+    cantidad = models.IntegerField()
+
+    def __str__(self):
+        return self.nombre
+    
 class InfPlato(models.Model):
     nombre = models.CharField(max_length=255)
     alergenos = models.ManyToManyField(Alergeno)
@@ -141,5 +156,3 @@ class Alergenos(models.Model):
 
     def __str__(self):
         return self.nombre
-
-

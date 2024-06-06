@@ -5,7 +5,8 @@ from django.views.generic import TemplateView
 from .models import PagoFinal,Cesta,Categorias, Plato, MenuSemanal, ImagenesPlatos, InfUbicacion 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-
+from django.views.decorators.csrf import csrf_protect
+from django.utils.decorators import method_decorator
 import json
 from .models import ImagenCarrusel
 
@@ -26,7 +27,7 @@ def carrusel_imagenes(request):
 
 
 class PagPrincipalView(TemplateView):
-   template_name = "pag_principal.html"
+    template_name = 'pag_principal.html'
 
 class CartaView(View):
     def get(self, request):
@@ -55,20 +56,23 @@ class PlatosCategoriaView(View):
         data = {'message': "Éxito", 'platos': platos}
         return JsonResponse(data)
 
-def InfPlatoView(request, id):
-    try:
-        plato = Plato.objects.get(id=id)
-        data = {
-            "id": plato.id,
-            "nombre": plato.nombre,
-            "descripcion": plato.descripcion,
-            "precio": plato.precio,
-            "imagen": plato.imagen.url,
-            "allergenos": [allergeno.url for allergeno in plato.allergenos.all()],
-        }
-        return JsonResponse(data)
-    except Plato.DoesNotExist:
-        return JsonResponse({'error': 'Plato no encontrado'}, status=404)
+class InfPlatoView(View):
+    def get(self, request, id):
+        try:
+            plato = Plato.objects.get(id=id)
+            data = {
+                "id": plato.id,
+                "nombre": plato.nombre,
+                "descripcion": plato.descripcion,
+                "precio": plato.precio,
+                "imagen": plato.imagen.url,
+                "alergenos": plato.alergenos,  # Suponiendo que plato.alergenos es una lista de alergenos
+            }
+            return JsonResponse(data)
+        except Plato.DoesNotExist:
+            return JsonResponse({'error': 'Plato no encontrado'}, status=404)
+
+
 
 class CestaView(View):
     def get(self, request):
@@ -91,9 +95,10 @@ class CestaView(View):
             data = {'message': "Elemento no encontrado..."}
         return JsonResponse(data)
 
+@method_decorator(csrf_protect, name='dispatch')
 class PagoFinalView(View):
     def get(self, request):
-        pagos = list(PagoFinal.objects.values('nombre', 'apellidos', 'tarjeta_credito', 'direccion', 'cvv', 'codigo_postal', 'fecha_caducidad_tarjeta'))
+        pagos = list(PagoFinal.objects.values('nombre', 'apellidos', 'tarjeta_credito', 'direccion', 'cvv', 'codigo_postal', 'fecha_caducidad_tarjeta', 'cantidad'))
         data = {'message': "Éxito", 'pagos': pagos}
         return JsonResponse(data)
 
