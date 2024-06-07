@@ -25,16 +25,19 @@ def carrusel_imagenes(request):
     # Devolver la lista de rutas de archivo como una respuesta JSON
     return JsonResponse({'imagenes': rutas_imagenes})
 
-
+# Vista para la página principal
 class PagPrincipalView(TemplateView):
     template_name = 'pag_principal.html'
 
+# Vista para la carta
 class CartaView(View):
     def get(self, request):
+         # Obtener todas las categorías de la base de datos
         categorias = list(Categorias.objects.values())  
         data = {'message': "Éxito", 'categorias': categorias}
         return JsonResponse(data)
-
+    
+# Vista para el menú semanal
 class MenuSemanalView(View):
     def get(self, request):
         # Verificar si el campo 'categoria' está presente en el modelo MenuSemanal
@@ -49,13 +52,15 @@ class MenuSemanalView(View):
             data = {'message': "Error: El campo 'categoria' no está presente en el modelo MenuSemanal"}
             return JsonResponse(data, status=500)
 
-
+# Vista para los platos de una categoría específica
 class PlatosCategoriaView(View):
     def get(self, request, categoria_id):
+         # Obtener los platos de la categoría especificada
         platos = list(Plato.objects.filter(categoria_id=categoria_id).values())
         data = {'message': "Éxito", 'platos': platos}
         return JsonResponse(data)
 
+# Vista para la información de un plato específico
 class InfPlatoView(View):
     def get(self, request, id):
         try:
@@ -73,19 +78,21 @@ class InfPlatoView(View):
             return JsonResponse({'error': 'Plato no encontrado'}, status=404)
 
 
-
+# Vista para la cesta de compras
 class CestaView(View):
     def get(self, request):
+        # Obtener todos los elementos de la cesta
         cesta = list(Cesta.objects.values())
         data = {'message': "Éxito", 'cesta': cesta}
         return JsonResponse(data)
 
     def post(self, request):
+         # Agregar un nuevo elemento a la cesta
         jd = json.loads(request.body)
         Cesta.objects.create(plato_id=jd['plato_id'], cantidad=jd['cantidad'])
         data = {'message': "Éxito"}
         return JsonResponse(data)
-
+# Eliminar un elemento de la cesta
     def delete(self, request, id):
         try:
             item = Cesta.objects.get(id=id)
@@ -95,14 +102,17 @@ class CestaView(View):
             data = {'message': "Elemento no encontrado..."}
         return JsonResponse(data)
 
+# Vista protegida por CSRF para el pago final
 @method_decorator(csrf_protect, name='dispatch')
 class PagoFinalView(View):
     def get(self, request):
+        # Obtener todos los pagos realizados
         pagos = list(PagoFinal.objects.values('nombre', 'apellidos', 'tarjeta_credito', 'direccion', 'cvv', 'codigo_postal', 'fecha_caducidad_tarjeta', 'cantidad'))
         data = {'message': "Éxito", 'pagos': pagos}
         return JsonResponse(data)
 
     def post(self, request):
+        # Realizar un nuevo pago
         jd = json.loads(request.body)
         nuevo_pago = PagoFinal(
             nombre=jd['nombre'],
@@ -118,18 +128,22 @@ class PagoFinalView(View):
         data = {'message': "Pago guardado con éxito"}
         return JsonResponse(data, status=201)
     
+    # Vista para la galería de imágenes de platos
 class GaleriaView(View):
     def get(self, request):
+        # Obtener todas las imágenes de platos
         imagenes = list(ImagenesPlatos.objects.values())
         data = {'message': "Éxito", 'imagenes': imagenes}
         return JsonResponse(data)
 
+# Vista para todos los platos
 class PlatosView(View):
     def get(self, request):
+        # Obtener todos los platos
         platos = list(Plato.objects.values())
         data = {'message': "Éxito", 'platos': platos}
         return JsonResponse(data)
-    
+# Vista para la información de ubicación
 class InfUbicacionView(View):
     def get(self, request):
         # Obtener los datos del modelo InfUbicacion

@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import Cesta, Plato, MenuSemanal, ImagenCarrusel, InfUbicacion, PagoFinal, InfPlato, Alergeno
 
-# Registra tus modelos aquí
+# Registro de los modelos 
 admin.site.register(Cesta)
 admin.site.register(Plato)
 admin.site.register(MenuSemanal)
